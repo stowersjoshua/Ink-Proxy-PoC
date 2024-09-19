@@ -37,8 +37,8 @@ def fetch_card_images(cards)
 end
 
 def create_pdf_with_images(image_paths, output_file)
-  card_width = 2.5.in * 0.94 # I used 0.9 last time and it as a tad small
-  card_height = 3.5.in * 0.94
+  card_width = 2.5.in * 0.96 # I used 0.95 last time and it was an itsy bitsy bit small
+  card_height = 3.5.in * 0.96
 
   Prawn::Document.generate(output_file, margin: 0) do |pdf|
     page_width = pdf.bounds.width

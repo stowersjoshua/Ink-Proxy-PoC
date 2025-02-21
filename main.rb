@@ -54,6 +54,7 @@ def create_pdf_with_images(image_paths, output_file)
     padding_y = spare_y / (cards_per_row + 1).floor
 
     cards_per_page = cards_per_column * cards_per_row
+    expected_page_count = (image_paths.count / cards_per_page.to_f).ceil
 
     calc_col = -> (i) { i % cards_per_column }
     calc_row = -> (i) { (i / cards_per_column).floor }
@@ -62,16 +63,16 @@ def create_pdf_with_images(image_paths, output_file)
     calc_y = -> (row) { page_height - (row * card_height) - (row.next * padding_y) }
 
     image_paths.in_groups_of(cards_per_page) do |paths|
-      paths.each_with_index do |path, index|
-        next if path.nil?
-
+      paths.compact.each_with_index do |path, index|
+        # Position card based on index
         x = calc_x.call(calc_col.call(index))
         y = calc_y.call(calc_row.call(index))
-
         pdf.image path, width: card_width, height: card_height, at: [x, y]
 
-        next if image_paths.last == path
-        pdf.start_new_page if index.next % cards_per_page == 0
+        # Start the next page if necessary
+        page_is_full = index.next == cards_per_page
+        has_more_pages = pdf.page_number < expected_page_count
+        pdf.start_new_page if page_is_full && has_more_pages
       end
     end
   end
